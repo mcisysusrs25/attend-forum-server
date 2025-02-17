@@ -1,4 +1,4 @@
-// assign batches to the sessoin and test it onnce in dev. 
+// assign batches to the sessoin and test it onnce in dev. - let's do it
 // remove the  batches from the session. 
 // if the session is active and if the session has the batches being used, then admin can not perform crud on that batch. 
 // once hte sessoin is acitve, the session is not mutable. // as it sync data to the blockchian. there should not be any way to edit the data. 
