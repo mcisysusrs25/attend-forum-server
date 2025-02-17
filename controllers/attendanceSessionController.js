@@ -84,27 +84,6 @@ const addAttendanceEntry = async (req, res, next) => {
     }
 };
 
-// Update session status
-const updateSessionStatus = async (req, res, next) => {
-    try {
-        const { sessionID } = req.params;
-        const { sessionStatus } = req.body;
-
-        const session = await AttendanceSession.findOneAndUpdate(
-            { sessionID },
-            { sessionStatus },
-            { new: true }
-        );
-
-        if (!session) {
-            return res.status(404).json({ message: "Session not found" });
-        }
-
-        res.status(200).json({ message: "Session status updated", data: session });
-    } catch (error) {
-        next(error);
-    }
-};
 
 // Get session attendance
 const getSessionAttendance = async (req, res, next) => {
@@ -120,20 +99,35 @@ const getSessionAttendance = async (req, res, next) => {
     }
 };
 
-// Get all sessions
-const getAllSessions = async (req, res, next) => {
+// Get all sessions by professor ID (POST request)
+const getAllSessionsByProfessor = async (req, res, next) => {
     try {
-        const sessions = await AttendanceSession.find({});
+        const { professorID } = req.body; // Get professorID from request body
+
+        // Validate professorID
+        if (!professorID) {
+            return res.status(400).json({ message: "Professor ID is required" });
+        }
+
+        // Fetch sessions created by the given professor
+        const sessions = await AttendanceSession.find({ createdBy: professorID });
+
+        // If no sessions found
+        if (sessions.length === 0) {
+            return res.status(404).json({ message: "No sessions found for this professor" });
+        }
+
+        // Return sessions
         res.status(200).json({ data: sessions });
     } catch (error) {
         next(error);
     }
 };
 
-// Get single session
+
 const getSingleSession = async (req, res, next) => {
     try {
-        const session = await AttendanceSession.findOne({ sessionID: req.params.id });
+        const session = await AttendanceSession.findOne({ sessionID: req.params.sessionID }); // Use same param name
         if (!session) {
             return res.status(404).json({ message: "Session not found" });
         }
@@ -159,9 +153,8 @@ const deleteSession = async (req, res, next) => {
 module.exports = {
     createAttendanceSession,
     addAttendanceEntry,
-    updateSessionStatus,
     getSessionAttendance,
-    getAllSessions,
+    getAllSessionsByProfessor,
     getSingleSession,
     deleteSession
 };

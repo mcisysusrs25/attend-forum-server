@@ -2,9 +2,8 @@ const express = require("express");
 const {
     createAttendanceSession,
     addAttendanceEntry,
-    updateSessionStatus,
     getSessionAttendance,
-    getAllSessions,
+    getAllSessionsByProfessor,
     getSingleSession,
     deleteSession
 } = require("../controllers/attendanceSessionController");
@@ -13,10 +12,10 @@ const router = express.Router();
 
 // Session management
 router.post("/add", createAttendanceSession);
-router.get("/", getAllSessions);
-router.get("/:id", getSingleSession);
-router.put("/:sessionID/status", updateSessionStatus);
-router.delete("/:id", deleteSession);
+router.post("/getSessionsbyProfessor", getAllSessionsByProfessor);
+router.get("/gsd/:sessionID", getSingleSession);
+
+router.delete("/delete/:id", deleteSession); // deletion is not possible. 
 
 // Attendance recording
 router.post("/:sessionID/attendance", addAttendanceEntry);
