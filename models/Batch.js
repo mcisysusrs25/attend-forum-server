@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 
 const batchSchema = new mongoose.Schema({
-    batchID: { type: mongoose.Schema.Types.ObjectId, auto: true }, // Auto-generated Batch ID
-    batchLabel: { type: String, required: true }, // Batch Title
-    students: [{ type: String, ref: "Student" }] // Store studentID as String
+    batchID: { type: String, required: true, unique: true, default: uuidv4 },
+    batchLabel: { type: String, required: true },
+    createdBy: { type: String, required: true }, // professorID
+    students: [{ type: String, ref: "Student" }] // Array of student IDs
 });
 
-const Batch = mongoose.model("Batch", batchSchema);
-module.exports = Batch;
+module.exports = mongoose.model("Batch", batchSchema);
