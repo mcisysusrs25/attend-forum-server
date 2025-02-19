@@ -1,6 +1,9 @@
 const Batch = require("../models/Batch");
 const Professor = require("../models/Professor");
 const Student = require("../models/Student");
+const AttendanceSession = require("../models/AttendanceSession");
+const AttendanceEntry = require("../models/AttendanceEntry");
+
 
 // Create Batch
 const createBatch = async (req, res, next) => {
@@ -107,7 +110,67 @@ const deleteBatch = async (req, res, next) => {
     }
 };
 
+
+const assignBatchesToSession = async (req, res, next) => {
+    try {
+        const { sessionID, batchIDs } = req.body;
+
+        // Check if the session exists
+        const session = await AttendanceSession.findOne({ sessionID });
+        if (!session) {
+            return res.status(404).json({ message: "Session not found" });
+        }
+
+        for (const batchID of batchIDs) {
+            // Fetch the batch by batchID without using populate
+            const batch = await Batch.findOne({ batchID });
+            if (!batch) {
+                return res.status(404).json({ message: `Batch with ID ${batchID} not found` });
+            }
+
+            // Iterate over studentIDs and fetch individual students
+            for (const studentID of batch.students) {
+                const student = await Student.findOne({ studentID });
+                if (!student) {
+                    return res.status(404).json({ message: `Student with ID ${studentID} not found` });
+                }
+
+                // Create attendance entry for the student
+                const attendanceEntry = new AttendanceEntry({
+                    sessionID,
+                    studentID,  // Directly using the studentID
+                    attendanceStatus: false, // Default to absent
+                    geolocation: {
+                        lat: null, // Set to null or you can leave it undefined if no data
+                        lng: null  // Set to null or you can leave it undefined if no data
+                    }
+                });
+
+                // Save the attendance entry and handle any duplicate entry errors
+                try {
+                    await attendanceEntry.save();
+                } catch (error) {
+                    if (error.code === 11000) {
+                        // Handle duplicate entry error based on the unique index
+                        console.error(`Duplicate attendance entry found for session ${sessionID} and student ${studentID}`);
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+        }
+
+        res.status(201).json({
+            message: "Batches assigned to session successfully"
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 module.exports = {
+    assignBatchesToSession,
     createBatch,
     getAllBatchesByProfessorId,
     getBatchDetails,

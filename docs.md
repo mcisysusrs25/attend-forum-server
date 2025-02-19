@@ -7,3 +7,5 @@ Need to implememnt:
 // Hyperledger fabric SDK.
 // Smart contracts to read write the attendence.
 // smart conract to verify the attendence with geo fencing logic. 
+
+

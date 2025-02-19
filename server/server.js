@@ -6,6 +6,8 @@ const professorRoutes = require("../routes/professorRoutes");
 const studentRoutes = require("../routes/studentRoutes");
 const attendanceSessionRoutes = require("../routes/attendanceSessionRoutes");
 const batchRoutes = require("../routes/batchRoutes");
+const attendanceRoutes = require("../routes/attendanceRoutes");
+const qrRoutes = require('../routes/qrRoutes');
 
 dotenv.config();
 const app = express();
@@ -20,6 +22,8 @@ app.use("/api/students", studentRoutes);
 // Use attendance session routes
 app.use("/api/sessions", attendanceSessionRoutes);
 app.use("/api/batches", batchRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use('/api/qr', qrRoutes);
 
 app.use((err, req, res, next) => {
     res.status(500).json({ message: err.message });

@@ -5,8 +5,8 @@ const attendanceEntrySchema = new mongoose.Schema({
     studentID: { type: String, required: true },
     attendanceStatus: { type: Boolean, default: false },
     geolocation: {
-        lat: { type: Number, required: true },
-        lng: { type: Number, required: true }
+        lat: { type: Number, default: null },  // Allow null as default
+        lng: { type: Number, default: null }   // Allow null as default
     },
     timestamp: { type: Date, default: Date.now }
 });
