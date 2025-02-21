@@ -61,7 +61,8 @@ const loginUser = async (req, res, next) => {
                             id: user.professorID,
                             fullName: user.professorName,
                             email: user.email,
-                            createdAt: user.createdAt
+                            createdAt: user.createdAt,
+                            userType: userType
                         },
                         token
                     }
@@ -99,7 +100,8 @@ const loginUser = async (req, res, next) => {
                             id: user.studentID,
                             fullName: `${user.firstName} ${user.lastName}`,
                             email: user.studentEmail,
-                            createdAt: user.createdAt
+                            createdAt: user.createdAt,
+                            userType: userType
                         },
                         token
                     }

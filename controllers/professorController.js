@@ -71,7 +71,8 @@ const createProfessor = async (req, res, next) => {
                     professorID: newProfessor.professorID,
                     professorName: newProfessor.professorName,
                     email: newProfessor.email,
-                    createdAt: newProfessor.createdAt
+                    createdAt: newProfessor.createdAt,
+                    userType: "professor",
                 },
                 token
             }
