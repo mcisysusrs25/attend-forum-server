@@ -14,6 +14,7 @@ const createSubject = async (req, res, next) => {
 
     // Check if the professorID exists in the Professor collection
     const professorExists = await Professor.findOne({ professorID });
+    console.log("log this and check" + professorExists);
     if (!professorExists) {
       return res.status(400).json({ 
         message: "Professor ID does not exist. Please provide a valid professorID." 

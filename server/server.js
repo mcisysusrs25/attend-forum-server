@@ -1,32 +1,57 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors"); // Import the cors middleware
+const cookieParser = require('cookie-parser');
+
+
 const connectDB = require("../config/db");
+
+
 const subjectRoutes = require("../routes/subjectRoutes");
 const professorRoutes = require("../routes/professorRoutes");
-const studentRoutes = require("../routes/studentRoutes");
 const attendanceSessionRoutes = require("../routes/attendanceSessionRoutes");
 const batchRoutes = require("../routes/batchRoutes");
 const attendanceRoutes = require("../routes/attendanceRoutes");
 const qrRoutes = require('../routes/qrRoutes');
+const studentRoutes = require('../routes/studentRoutes'); 
+const registerStudentsBySelfRoutes = require('../routes/registerStudents'); 
+const loginUserRoutes = require('../routes/loginUserRoutes'); 
+const authenticate = require('../middleware/authMiddleware');
+
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Enable CORS for all routes
+app.use(cors({
+  origin: 'http://localhost:3000', // Allow requests from this origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+  credentials: true, // Allow cookies and credentials
+}));
+
 app.use(express.json());
+app.use(cookieParser());
 connectDB();
 
-app.use("/api/subjects", subjectRoutes);
 app.use("/api/professor", professorRoutes);
-app.use("/api/students", studentRoutes);
-// Use attendance session routes
-app.use("/api/sessions", attendanceSessionRoutes);
-app.use("/api/batches", batchRoutes);
-app.use("/api/attendance", attendanceRoutes);
-app.use('/api/qr', qrRoutes);
 
+// Routes
+app.use("/api/subjects", authenticate, subjectRoutes);
+
+app.use("/api/sessions", authenticate,attendanceSessionRoutes);
+app.use("/api/batches", authenticate,batchRoutes);
+app.use("/api/attendance",authenticate, attendanceRoutes);
+app.use('/api/qr', authenticate,qrRoutes);
+app.use('/api/students/addbyProfessor', studentRoutes);
+app.use('/api/students/addSelf', registerStudentsBySelfRoutes);
+
+app.use('/api/auth/', loginUserRoutes);
+
+// Error handling middleware
 app.use((err, req, res, next) => {
-    res.status(500).json({ message: err.message });
+  res.status(500).json({ message: err.message });
 });
 
+// Start the server
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

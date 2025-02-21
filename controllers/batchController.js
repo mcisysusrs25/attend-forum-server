@@ -4,13 +4,11 @@ const Student = require("../models/Student");
 const AttendanceSession = require("../models/AttendanceSession");
 const AttendanceEntry = require("../models/AttendanceEntry");
 
-
-// Create Batch
 const createBatch = async (req, res, next) => {
     try {
         const { batchLabel, createdBy, students } = req.body;
 
-        // Check if the professor exists
+        // Check if the professor exists by the correct field
         const professorExists = await Professor.findOne({ professorID: createdBy });
         if (!professorExists) {
             return res.status(404).json({ message: "Professor not found" });
@@ -30,6 +28,7 @@ const createBatch = async (req, res, next) => {
         next(error);
     }
 };
+
 
 const getAllBatchesByProfessorId = async (req, res, next) => {
     try {
