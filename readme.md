@@ -49,34 +49,6 @@ Forum Server is a comprehensive attendance management system designed for educat
    - View session history
    - Export reports
 
-## Technologies Used
-- Backend: [Specify backend technology]
-- Database: [Specify database]
-- AI & Analytics: [Specify AI tools]
-- Authentication: OTP-based verification
-
-## Installation & Setup
-1. Clone the repository:
-   ```sh
-   git clone [repository-url]
-   ```
-2. Navigate to the project directory:
-   ```sh
-   cd forum-server
-   ```
-3. Install dependencies:
-   ```sh
-   [command to install dependencies]
-   ```
-4. Configure environment variables:
-   ```sh
-   [steps to configure environment variables]
-   ```
-5. Start the server:
-   ```sh
-   [command to start the server]
-   ```
-
 ## License
 MIT
 
