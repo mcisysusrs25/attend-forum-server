@@ -1,3 +1,4 @@
+// models/AttendanceSession.js
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 
@@ -13,10 +14,13 @@ const attendanceSessionSchema = new mongoose.Schema({
         default: "new"
     },
     subjectCode: { type: String, required: true },
-    createdBy: { type: String, required: true } // ProfessorID
+    createdBy: { type: String, required: true }, // ProfessorID
+    batchID: { type: String, required: true, ref: "Batch" }, // Reference to Batch
+    sessionCreatedDateTime: { type: Date, default: Date.now }, // Session creation time
+    students: [{
+        studentID: { type: String, required: true, ref: "Student" }, // Reference to Student
+        attendanceStatus: { type: String, enum: ["Present", "Absent"], default: "Absent" }
+    }]
 });
-
-// Index for better query performance
-attendanceSessionSchema.index({ sessionValidFrom: 1, sessionValidTo: 1 });
 
 module.exports = mongoose.model("AttendanceSession", attendanceSessionSchema);

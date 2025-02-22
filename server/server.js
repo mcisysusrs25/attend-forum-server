@@ -11,7 +11,7 @@ const subjectRoutes = require("../routes/subjectRoutes");
 const professorRoutes = require("../routes/professorRoutes");
 const attendanceSessionRoutes = require("../routes/attendanceSessionRoutes");
 const batchRoutes = require("../routes/batchRoutes");
-const attendanceRoutes = require("../routes/attendanceRoutes");
+
 const qrRoutes = require('../routes/qrRoutes');
 const studentRoutes = require('../routes/studentRoutes'); 
 const registerStudentsBySelfRoutes = require('../routes/registerStudents'); 
@@ -41,7 +41,6 @@ app.use("/api/subjects", authenticate, subjectRoutes);
 
 app.use("/api/sessions", authenticate,attendanceSessionRoutes);
 app.use("/api/batches", authenticate,batchRoutes);
-app.use("/api/attendance",authenticate, attendanceRoutes);
 app.use('/api/qr', authenticate,qrRoutes);
 app.use('/api/students/addbyProfessor', studentRoutes);
 app.use('/api/students/addSelf', registerStudentsBySelfRoutes);

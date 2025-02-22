@@ -1,13 +1,14 @@
 const AttendanceSession = require("../models/AttendanceSession");
-const AttendanceEntry = require("../models/AttendanceEntry");
 const Subject = require("../models/Subject");
 const Professor = require("../models/Professor");
 const Student = require("../models/Student");
+const Batch = require("../models/Batch");
 
-// Create new attendance session
+
+
 const createAttendanceSession = async (req, res, next) => {
     try {
-        const { sessionTitle, sessionDescription, subjectCode, createdBy, sessionValidFrom, sessionValidTo } = req.body;
+        const { sessionTitle, sessionDescription, subjectCode, createdBy, sessionValidFrom, sessionValidTo, batchID } = req.body;
 
         // Validate time range
         if (new Date(sessionValidFrom) >= new Date(sessionValidTo)) {
@@ -26,6 +27,24 @@ const createAttendanceSession = async (req, res, next) => {
             return res.status(400).json({ message: "Invalid professor ID" });
         }
 
+        // Validate batch exists
+        const batch = await Batch.findOne({ batchID });
+        if (!batch) {
+            return res.status(400).json({ message: "Invalid batch ID" });
+        }
+
+        // Fetch students using studentID
+        const students = await Student.find({ studentID: { $in: batch.students } });
+        if (students.length === 0) {
+            return res.status(400).json({ message: "No students found in the specified batch" });
+        }
+
+        // Prepare students array with default attendance status
+        const sessionStudents = students.map(student => ({
+            studentID: student.studentID, // Use student.studentID
+            attendanceStatus: "Absent"
+        }));
+
         // Create new session
         const newSession = new AttendanceSession({
             sessionTitle,
@@ -33,7 +52,9 @@ const createAttendanceSession = async (req, res, next) => {
             subjectCode,
             createdBy,
             sessionValidFrom,
-            sessionValidTo
+            sessionValidTo,
+            batchID,
+            students: sessionStudents
         });
 
         await newSession.save();
@@ -44,56 +65,157 @@ const createAttendanceSession = async (req, res, next) => {
     }
 };
 
-// Add student attendance to session
-const addAttendanceEntry = async (req, res, next) => {
+const updateAttendanceSession = async (req, res, next) => {
     try {
-        const { sessionID } = req.params;
-        const { studentID, lat, lng } = req.body;
+        const { sessionID } = req.params; // Extract sessionID from URL params
+        const { sessionTitle, sessionDescription, sessionValidFrom, sessionValidTo, subjectCode, batchID } = req.body;
 
-        // Validate session exists
-        const session = await AttendanceSession.findOne({ sessionID });
-        if (!session) {
+        // Validate time range
+        if (new Date(sessionValidFrom) >= new Date(sessionValidTo)) {
+            return res.status(400).json({ message: "Invalid time range - end time must be after start time" });
+        }
+
+        // Validate subject exists
+        const subjectExists = await Subject.findOne({ subjectCode });
+        if (!subjectExists) {
+            return res.status(400).json({ message: "Invalid subject code" });
+        }
+
+        // Fetch the existing session
+        const existingSession = await AttendanceSession.findOne({ sessionID });
+        if (!existingSession) {
             return res.status(404).json({ message: "Session not found" });
         }
 
-        // Validate student exists
-        const student = await Student.findOne({ studentID });
-        if (!student) {
-            return res.status(404).json({ message: "Student not found" });
+        // Check if batchID is being updated
+        if (batchID && batchID !== existingSession.batchID) {
+            // Validate the new batch exists
+            const newBatch = await Batch.findOne({ batchID });
+            if (!newBatch) {
+                return res.status(400).json({ message: "Invalid batch ID" });
+            }
+
+            // Fetch students for the new batch
+            const students = await Student.find({ studentID: { $in: newBatch.students } });
+            if (students.length === 0) {
+                return res.status(400).json({ message: "No students found in the specified batch" });
+            }
+
+            // Prepare students array with default attendance status
+            const sessionStudents = students.map(student => ({
+                studentID: student.studentID, // Use student.studentID
+                attendanceStatus: "Absent"
+            }));
+
+            // Update the session with the new batch and students
+            existingSession.batchID = batchID;
+            existingSession.students = sessionStudents;
         }
 
-        // Check if attendance already exists
-        const existingEntry = await AttendanceEntry.findOne({ sessionID, studentID });
-        if (existingEntry) {
-            return res.status(400).json({ message: "Attendance already recorded for this student" });
-        }
+        // Update other fields
+        existingSession.sessionTitle = sessionTitle || existingSession.sessionTitle;
+        existingSession.sessionDescription = sessionDescription || existingSession.sessionDescription;
+        existingSession.sessionValidFrom = sessionValidFrom || existingSession.sessionValidFrom;
+        existingSession.sessionValidTo = sessionValidTo || existingSession.sessionValidTo;
+        existingSession.subjectCode = subjectCode || existingSession.subjectCode;
 
-        // Create new attendance entry
-        const newEntry = new AttendanceEntry({
-            sessionID,
-            studentID,
-            attendanceStatus: true,
-            geolocation: { lat, lng }
-        });
+        // Save the updated session
+        await existingSession.save();
 
-        await newEntry.save();
-        res.status(201).json({ message: "Attendance recorded successfully", data: newEntry });
+        res.status(200).json({ message: "Attendance session updated successfully", data: existingSession });
 
     } catch (error) {
         next(error);
     }
 };
 
+const addAttendanceEntry = async (req, res, next) => {
+    try {
 
-// Get session attendance
+      const { sessionID, students } = req.body;
+      
+      // Input validation
+      if (!Array.isArray(students) || students.length === 0) {
+        return res.status(400).json({
+          message: "Invalid input. Expected array of students with studentID"
+        });
+      }
+  
+      // Validate session exists
+      const session = await AttendanceSession.findOne({ sessionID });
+      if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+  
+      // Track successful and failed updates
+      const results = {
+        successful: [],
+        failed: []
+      };
+  
+      // Process each student attendance
+      for (const studentEntry of students) {
+        const { studentID } = studentEntry;
+  
+        // Find student in session
+        const studentInSession = session.students.find(
+          student => student.studentID === studentID
+        );
+  
+        if (!studentInSession) {
+          results.failed.push({
+            studentID,
+            reason: "Student not found in this session"
+          });
+          continue;
+        }
+  
+        // Update attendance status
+        studentInSession.attendanceStatus = "Present";
+        
+        results.successful.push({
+          studentID,
+          status: "Present"
+        });
+      }
+  
+      // Save the session with all updates
+      if (results.successful.length > 0) {
+        await session.save();
+      }
+  
+      // Return response with details of successful and failed updates
+      res.status(201).json({
+        message: "Attendance processing completed",
+        data: {
+          session,
+          results: {
+            totalProcessed: students.length,
+            successfulUpdates: results.successful.length,
+            failedUpdates: results.failed.length,
+            successful: results.successful,
+            failed: results.failed
+          }
+        }
+      });
+  
+    } catch (error) {
+      next(error);
+    }
+  };
+
 const getSessionAttendance = async (req, res, next) => {
     try {
         const { sessionID } = req.params;
         
-        const attendance = await AttendanceEntry.find({ sessionID })
-            .populate('student', 'firstName lastName studentID -_id');
+        const session = await AttendanceSession.findOne({ sessionID })
+            .populate('students.studentID', 'firstName lastName studentID -_id');
 
-        res.status(200).json({ data: attendance });
+        if (!session) {
+            return res.status(404).json({ message: "Session not found" });
+        }
+
+        res.status(200).json({ data: session.students });
     } catch (error) {
         next(error);
     }
@@ -182,6 +304,7 @@ const updateAttendanceStatus = async (req, res, next) => {
 
 
 module.exports = {
+    updateAttendanceSession,
     updateAttendanceStatus,
     createAttendanceSession,
     addAttendanceEntry,
