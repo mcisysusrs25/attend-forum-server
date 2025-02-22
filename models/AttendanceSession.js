@@ -9,8 +9,8 @@ const attendanceSessionSchema = new mongoose.Schema({
     sessionValidTo: { type: Date, required: true },
     sessionStatus: { 
         type: String, 
-        enum: ["active", "closed"],
-        default: "active"
+        enum: ["active", "completed", "new"],
+        default: "new"
     },
     subjectCode: { type: String, required: true },
     createdBy: { type: String, required: true } // ProfessorID

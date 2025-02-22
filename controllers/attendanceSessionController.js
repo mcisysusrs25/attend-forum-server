@@ -150,7 +150,39 @@ const deleteSession = async (req, res, next) => {
     }
 };
 
+
+const updateAttendanceStatus = async (req, res, next) => {
+    try {
+        const { sessionID } = req.params; // Extract from URL params
+        const { status } = req.body; // Extract status from body
+
+        // Validate status value
+        if (!["active", "completed", "new"].includes(status)) {
+            return res.status(400).json({ message: "Invalid status value" });
+        }
+
+        // Find and update session status
+        const session = await AttendanceSession.findOneAndUpdate(
+            { sessionID }, 
+            { sessionStatus: status }, 
+            { new: true }
+        );
+
+        if (!session) {
+            return res.status(404).json({ message: "Attendance session not found" });
+        }
+
+        res.status(200).json({ message: "Attendance session status updated successfully", data: session });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
 module.exports = {
+    updateAttendanceStatus,
     createAttendanceSession,
     addAttendanceEntry,
     getSessionAttendance,
