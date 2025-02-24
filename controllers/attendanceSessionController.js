@@ -224,7 +224,7 @@ const getSessionAttendance = async (req, res, next) => {
 // Get all sessions by professor ID (POST request)
 const getAllSessionsByProfessor = async (req, res, next) => {
     try {
-        const { professorID } = req.body; // Get professorID from request body
+        const { professorID } = req.params; // Get professorID from request body
 
         // Validate professorID
         if (!professorID) {
@@ -301,9 +301,33 @@ const updateAttendanceStatus = async (req, res, next) => {
     }
 };
 
+const getAttendanceSessionsByStudent = async (req, res, next) => {
+    try {
+        const { studentID } = req.params;
+
+        // Validate if the student exists
+        const studentExists = await Student.findOne({ studentID });
+        if (!studentExists) {
+            return res.status(404).json({ message: "Student not found" });
+        }
+
+        // Fetch all attendance sessions where the student is enrolled
+        const sessions = await AttendanceSession.find({ "students.studentID": studentID });
+
+        if (!sessions || sessions.length === 0) {
+            return res.status(404).json({ message: "No attendance sessions found for this student" });
+        }
+
+        res.status(200).json({ data: sessions });
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 
 module.exports = {
+    getAttendanceSessionsByStudent,
     updateAttendanceSession,
     updateAttendanceStatus,
     createAttendanceSession,

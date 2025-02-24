@@ -47,6 +47,11 @@ app.use('/api/students/addSelf', registerStudentsBySelfRoutes);
 
 app.use('/api/auth/', loginUserRoutes);
 
+// Test route
+app.get("/test/hello", (req, res) => {
+  res.send("hello");
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message });

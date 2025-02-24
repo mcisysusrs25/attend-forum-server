@@ -1,5 +1,6 @@
 const express = require("express");
 const {
+    getAttendanceSessionsByStudent,
     updateAttendanceSession,
     updateAttendanceStatus,
     createAttendanceSession,
@@ -14,8 +15,10 @@ const router = express.Router();
 
 // Session management
 router.post("/add", createAttendanceSession);
-router.post("/getSessionsbyProfessor", getAllSessionsByProfessor);
+router.get("/getSessionsbyProfessor/:professorID", getAllSessionsByProfessor);
+
 router.get("/gsd/:sessionID", getSingleSession);
+router.get("/getByStudentId/:studentID", getAttendanceSessionsByStudent);
 
 router.post('/updateStatus/:sessionID', updateAttendanceStatus);
 router.post('/updateSession/:sessionID', updateAttendanceSession);

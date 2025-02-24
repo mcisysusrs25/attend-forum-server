@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const Auth = require('../models/AuthSession');
 const Professor = require('../models/Professor');
+const Student = require('../models/Student');
 
 const authenticate = async (req, res, next) => {
     try {
@@ -37,7 +38,13 @@ const authenticate = async (req, res, next) => {
         const professor = await Professor.findOne({ professorID: decoded.id }); // Change to the correct field if necessary
         console.log("Professor Found:", professor);
 
-        if (!professor) {
+
+        // Get professor by ID or professorID based on your implementation
+        const student = await Student.findOne({ studentID: decoded.id }); // Change to the correct field if necessary
+        console.log("Professor Found:", student);
+
+
+        if (!professor && !student) {
             return res.status(401).json({ error: "Professor not found" });
         }
 
