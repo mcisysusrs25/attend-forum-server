@@ -70,6 +70,7 @@ const loginUser = async (req, res, next) => {
             }
         } else if (userType === 'student') {
             user = await Student.findOne({ studentEmail: email });
+            console.log('studnet found' + user.studentID);
             if (user && user.studentID === userID) {
                 // Generate JWT token for the student
                 const { token, expiryTime } = generateToken(user);

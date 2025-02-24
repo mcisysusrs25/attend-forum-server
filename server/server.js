@@ -61,8 +61,7 @@ app.use("/api/batches", authenticate, batchRoutes);
 app.use('/api/qr', authenticate, qrRoutes);
 app.use('/api/students/addbyProfessor', studentRoutes);
 app.use('/api/students/addSelf', registerStudentsBySelfRoutes);
-app.use('/api/auth', loginUserRoutes); // Removed trailing slash
-
+app.use('/api/auth', loginUserRoutes); 
 // Test route
 app.get("/test/hello", (req, res) => {
   res.send("hello");
