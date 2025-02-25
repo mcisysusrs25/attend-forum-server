@@ -13,6 +13,7 @@ const registerStudentsBySelfRoutes = require('../routes/registerStudents');
 const loginUserRoutes = require('../routes/loginUserRoutes');
 const authenticate = require('../middleware/authMiddleware');
 const classConfigurationRoutes = require("../routes/classConfigurationRoutes");
+const studentSessionRoutes = require("../routes/studentSessionRoutes");
 
 dotenv.config();
 const app = express();
@@ -64,6 +65,7 @@ app.use('/api/students/addbyProfessor', studentRoutes);
 app.use('/api/students/addSelf', registerStudentsBySelfRoutes);
 app.use('/api/auth', loginUserRoutes); 
 app.use("/api/class-configurations",authenticate, classConfigurationRoutes);
+app.use("/api/student/sessions", authenticate, studentSessionRoutes);
 
 // Test route
 app.get("/test/hello", (req, res) => {
