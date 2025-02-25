@@ -11,8 +11,8 @@ const {
 
 router.post("/create", createBatch); // Create batch
 router.post("/getBatchByProfessorId", getAllBatchesByProfessorId); // Get all batches
-// router.get("/getBatchDetails/:id", getBatchDetails); // Get batch details
-// router.put("/update", updateBatch);
-// router.delete("/delete/:id", deleteBatch);
+router.get("/details/:batchID", getBatchDetails); // Get batch details
+router.post("/update", updateBatch);
+router.delete("/delete/:batchID", deleteBatch);
 
 module.exports = router;

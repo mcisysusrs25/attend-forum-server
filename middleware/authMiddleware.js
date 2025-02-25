@@ -23,11 +23,11 @@ const authenticate = async (req, res, next) => {
         console.log("Session Found:", session);
 
         if (!session) {
-            return res.status(401).json({ error: "Invalid session - Token not found in AuthSession" });
+            return res.status(401).json({ error: "Token Expired" });
         }
 
         if (session.expiresAt < new Date()) {
-            return res.status(401).json({ error: "Expired session - Token is expired" });
+            return res.status(401).json({ error: "Token Expired" });
         }
 
         // Verify JWT

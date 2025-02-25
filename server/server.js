@@ -12,6 +12,7 @@ const studentRoutes = require('../routes/studentRoutes');
 const registerStudentsBySelfRoutes = require('../routes/registerStudents');
 const loginUserRoutes = require('../routes/loginUserRoutes');
 const authenticate = require('../middleware/authMiddleware');
+const classConfigurationRoutes = require("../routes/classConfigurationRoutes");
 
 dotenv.config();
 const app = express();
@@ -62,6 +63,8 @@ app.use('/api/qr', authenticate, qrRoutes);
 app.use('/api/students/addbyProfessor', studentRoutes);
 app.use('/api/students/addSelf', registerStudentsBySelfRoutes);
 app.use('/api/auth', loginUserRoutes); 
+app.use("/api/class-configurations",authenticate, classConfigurationRoutes);
+
 // Test route
 app.get("/test/hello", (req, res) => {
   res.send("hello");

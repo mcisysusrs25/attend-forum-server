@@ -10,19 +10,6 @@ const subjectSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  description: { 
-    type: String, 
-    required: true 
-  },
-  creditHours: { 
-    type: Number, 
-    required: true 
-  },
-  subjectTerm: { 
-    type: String, 
-    required: true, 
-    enum: ["Fall", "Spring", "Summer"] 
-  },
   professorID: { 
     type: String, 
     required: true,

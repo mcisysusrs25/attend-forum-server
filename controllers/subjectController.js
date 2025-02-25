@@ -7,9 +7,6 @@ const createSubject = async (req, res, next) => {
     const { 
       subjectCode, 
       title, 
-      description, 
-      creditHours, 
-      subjectTerm, 
       professorID 
     } = req.body;
 
@@ -33,9 +30,6 @@ const createSubject = async (req, res, next) => {
     const newSubject = new Subject({
       subjectCode,
       title,
-      description,
-      creditHours,
-      subjectTerm,
       professorID
     });
 
@@ -127,12 +121,70 @@ const getSubjectsByProfessorID = async (req, res, next) => {
   }
 };
 
-// 4. Get a single subject by subjectID
-const getSubjectById = async (req, res, next) => {
+const updateSubjectByCode = async (req, res, next) => {
   try {
-    const { subjectID } = req.params;
+    const { subjectCode } = req.params;
+    const updateData = req.body;
 
-    const subject = await Subject.findOne({ _id: subjectID });
+    // Check if the subject exists
+    const subjectExists = await Subject.findOne({ subjectCode });
+    if (!subjectExists) {
+      return res.status(404).json({ message: "Subject not found." });
+    }
+
+    // Ensure unique subjectCode if being updated
+    if (updateData.subjectCode && updateData.subjectCode !== subjectExists.subjectCode) {
+      const existingSubject = await Subject.findOne({ subjectCode: updateData.subjectCode });
+      if (existingSubject) {
+        return res.status(400).json({ message: "Subject code already exists. Please provide a unique subject code." });
+      }
+    }
+
+    // Update the subject
+    const updatedSubject = await Subject.findOneAndUpdate({ subjectCode }, updateData, { new: true });
+
+    res.status(200).json({ message: "Subject updated successfully", data: updatedSubject });
+
+  } catch (error) {
+    console.error('Error updating subject:', error);
+    return res.status(500).json({ message: "An error occurred while updating the subject.", error: error.message });
+  }
+};
+
+const deleteSubject = async (req, res, next) => {
+  try {
+    const { subjectCode } = req.params;
+
+    console.log("Got this from the client ->", subjectCode);
+
+    // Check if the subject exists
+    const subjectExists = await Subject.findOne({ subjectCode });
+    if (!subjectExists) {
+      return res.status(404).json({
+        message: "Subject not found."
+      });
+    }
+
+    // Delete the subject using subjectCode instead of _id
+    await Subject.deleteOne({ subjectCode });
+
+    res.status(200).json({
+      message: "Subject deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Error deleting subject:", error);
+    return res.status(500).json({
+      message: "An error occurred while deleting the subject.",
+      error: error.message
+    });
+  }
+};
+const getSubjectByCode = async (req, res, next) => {
+  try {
+    const { subjectCode } = req.params;
+
+    const subject = await Subject.findOne({ subjectCode });
 
     if (!subject) {
       return res.status(404).json({ 
@@ -146,73 +198,9 @@ const getSubjectById = async (req, res, next) => {
     });
 
   } catch (error) {
-    console.error('Error fetching subject by ID:', error);
+    console.error('Error fetching subject by subjectCode:', error);
     return res.status(500).json({ 
       message: "An error occurred while fetching the subject.",
-      error: error.message
-    });
-  }
-};
-
-// 5. Update a subject by subjectID
-const updateSubject = async (req, res, next) => {
-  try {
-    const { subjectID } = req.params;
-    const updateData = req.body;
-
-    // Check if the subject exists
-    const subjectExists = await Subject.findOne({ _id: subjectID });
-    if (!subjectExists) {
-      return res.status(404).json({ 
-        message: "Subject not found." 
-      });
-    }
-
-    // Update the subject
-    const updatedSubject = await Subject.findByIdAndUpdate(
-      subjectID,
-      updateData,
-      { new: true } // Return the updated document
-    );
-
-    res.status(200).json({ 
-      message: "Subject updated successfully", 
-      data: updatedSubject 
-    });
-
-  } catch (error) {
-    console.error('Error updating subject:', error);
-    return res.status(500).json({ 
-      message: "An error occurred while updating the subject.",
-      error: error.message
-    });
-  }
-};
-
-// 6. Delete a subject by subjectID
-const deleteSubject = async (req, res, next) => {
-  try {
-    const { subjectID } = req.params;
-
-    // Check if the subject exists
-    const subjectExists = await Subject.findOne({ _id: subjectID });
-    if (!subjectExists) {
-      return res.status(404).json({ 
-        message: "Subject not found." 
-      });
-    }
-
-    // Delete the subject
-    await Subject.findByIdAndDelete(subjectID);
-
-    res.status(200).json({ 
-      message: "Subject deleted successfully" 
-    });
-
-  } catch (error) {
-    console.error('Error deleting subject:', error);
-    return res.status(500).json({ 
-      message: "An error occurred while deleting the subject.",
       error: error.message
     });
   }
@@ -223,7 +211,7 @@ module.exports = {
   createSubject, 
   getSubjects, 
   getSubjectsByProfessorID, 
-  getSubjectById, 
-  updateSubject, 
+  updateSubjectByCode, 
+  getSubjectByCode, 
   deleteSubject 
 };

@@ -7,8 +7,7 @@ const batchSchema = new mongoose.Schema({
     batchLabel: { type: String, required: true },
     createdBy: { type: String, required: true }, // professorID
     students: [{ 
-        type: String, // Store studentID as a string
-        ref: "Student" // Reference the Student model
+        type: String, // Store studentID as a string, // Reference the Student model
     }]
 });
 

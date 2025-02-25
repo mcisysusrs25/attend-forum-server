@@ -54,8 +54,13 @@ const getAllBatchesByProfessorId = async (req, res, next) => {
 
 // Get Batch Details by ID
 const getBatchDetails = async (req, res, next) => {
+
+    const batchID = req.params.batchID;
+
+    console.log("got from the client" + batchID);
     try {
-        const batch = await Batch.findOne({ batchID: req.params.id }).populate("students");
+        const batch = await Batch.findOne({ batchID: batchID }).populate("students");
+        console.log(batch);
         if (!batch) {
             return res.status(404).json({ message: "Batch not found" });
         }
@@ -69,6 +74,8 @@ const getBatchDetails = async (req, res, next) => {
 const updateBatch = async (req, res, next) => {
     try {
         const { batchID, studentsToAdd, studentsToRemove } = req.body;
+
+        console.log("got from client " + batchID)
 
         const batch = await Batch.findOne({ batchID });
         if (!batch) {
@@ -98,8 +105,12 @@ const updateBatch = async (req, res, next) => {
 
 // Delete Batch
 const deleteBatch = async (req, res, next) => {
+
+    const batchId = req.params.batchID;
+    console.log("got from the client" + batchId);
     try {
-        const batch = await Batch.findOneAndDelete({ batchID: req.params.id });
+        const batch = await Batch.findOneAndDelete({ batchID: batchId });
+        console.log(batch);
         if (!batch) {
             return res.status(404).json({ message: "Batch not found" });
         }

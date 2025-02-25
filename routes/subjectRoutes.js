@@ -3,8 +3,8 @@ const {
   createSubject, 
   getSubjects, 
   getSubjectsByProfessorID, 
-  getSubjectById, 
-  updateSubject, 
+  updateSubjectByCode, 
+  getSubjectByCode, 
   deleteSubject 
 } = require("../controllers/subjectController");
 
@@ -20,12 +20,12 @@ router.get("/all", getSubjects);
 router.get("/getsubjects/:professorID", getSubjectsByProfessorID);
 
 // Get a single subject by subjectID
-router.get("/:subjectID", getSubjectById);
+router.get("/:subjectCode", getSubjectByCode);
 
 // Update a subject by subjectID
-router.put("update/:subjectID", updateSubject);
+router.put("/update/:subjectCode", updateSubjectByCode);
 
 // Delete a subject by subjectID
-router.delete("delete/:subjectID", deleteSubject);
+router.delete("/delete/:subjectCode", deleteSubject);
 
 module.exports = router;
