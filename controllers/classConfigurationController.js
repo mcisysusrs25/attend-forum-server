@@ -1,4 +1,4 @@
-const ClassConfiguration = require("../models/ClassConfiguration");
+const ClassConfiguration = require("../models/classConfiguration");
 
 // Create a new Class Configuration
 const createClassConfiguration = async (req, res, next) => {
