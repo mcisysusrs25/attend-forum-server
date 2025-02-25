@@ -35,13 +35,13 @@ const authenticate = async (req, res, next) => {
         console.log("Decoded Token:", decoded);
 
         // Get professor by ID or professorID based on your implementation
-        const professor = await Professor.findOne({ professorID: decoded.id }); // Change to the correct field if necessary
-        console.log("Professor Found:", professor);
+        const professor = await Professor.findOne({ professorID: decoded.id }); 
+        console.log("Professor Found:", professor.professorID);
 
 
         // Get professor by ID or professorID based on your implementation
         const student = await Student.findOne({ studentID: decoded.id }); // Change to the correct field if necessary
-        console.log("Professor Found:", student);
+        console.log("Student Found:", student?.studentID);
 
 
         if (!professor && !student) {

@@ -6,7 +6,12 @@ const classConfigurationSchema = new mongoose.Schema(
     classConfigId: {
       type: String,
       unique: true,
-      default: uuidv4, // Generates a unique ID
+      default: uuidv4,
+    },
+    userID: {
+      type: String,
+      required: true,
+      
     },
     label: {
       type: String,
@@ -27,5 +32,8 @@ const classConfigurationSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Ensure no unique index is enforced on userID
+classConfigurationSchema.index({ userID: 1 }, { unique: false });
 
 module.exports = mongoose.model("ClassConfiguration", classConfigurationSchema);

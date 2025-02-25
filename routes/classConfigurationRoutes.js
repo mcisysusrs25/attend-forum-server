@@ -1,21 +1,21 @@
 const express = require("express");
 const router = express.Router();
 const {
-    createClassConfiguration,
-    getAllClassConfigurations,
-    getClassConfigurationById,
-    updateClassConfiguration,
-    deleteClassConfiguration
+  createClassConfiguration,
+  getAllClassConfigurationsbyProfessorID,
+  getClassConfigurationById,
+  updateClassConfiguration,
+  deleteClassConfiguration
 } = require("../controllers/classConfigurationController");
 
 // Create a new Class Configuration
 router.post("/create", createClassConfiguration);
 
-// Get all Class Configurations
-router.get("/", getAllClassConfigurations);
+// Get all Class Configurations by Professor ID
+router.get("/professor/:userID", getAllClassConfigurationsbyProfessorID);
 
 // Get Class Configuration by ID
-router.get("/:classConfigId", getClassConfigurationById);
+router.get("/config/:id", getClassConfigurationById);
 
 // Update Class Configuration
 router.put("/update/:classConfigId", updateClassConfiguration);
