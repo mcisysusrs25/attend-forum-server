@@ -20,12 +20,14 @@ const app = express();
 const PORT = process.env.PORT || 5000; // Changed to 5000 to match your frontend calls
 
 const allowedOrigins = [
+  'http://localhost:5500',
+  'http://127.0.0.1:5500', // Add this to explicitly allow requests from your frontend
   'http://localhost:3000',
+  'https://mcisysusrs25.github.io/',
   'https://attend-forum-server-dev-1-0.onrender.com',
   'https://attend-forum-ui-react-next.vercel.app'
 ];
 
-// Enable CORS with proper credentials configuration
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -34,21 +36,23 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Added OPTIONS method
-  credentials: true, // Changed to true to allow credentials
-  allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
-  exposedHeaders: ['Content-Range', 'X-Content-Range']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true, 
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Add security headers
+// Add this middleware to explicitly allow headers for preflight requests
 app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-  );
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
   next();
 });
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -61,11 +65,12 @@ app.use("/api/subjects", authenticate, subjectRoutes);
 app.use("/api/sessions", authenticate, attendanceSessionRoutes);
 app.use("/api/batches", authenticate, batchRoutes);
 app.use('/api/qr', authenticate, qrRoutes);
-app.use('/api/students/addbyProfessor', studentRoutes);
+app.use('/api/students', studentRoutes);
 app.use('/api/students/addSelf', registerStudentsBySelfRoutes);
 app.use('/api/auth', loginUserRoutes); 
 app.use("/api/class-configurations",authenticate, classConfigurationRoutes);
 app.use("/api/student/sessions", authenticate, studentSessionRoutes);
+
 
 // Test route
 app.get("/test/hello", (req, res) => {
