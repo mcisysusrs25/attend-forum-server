@@ -46,7 +46,6 @@ const markAttendance = async (req, res, next) => {
 };
 
 const markAttendance1 = async (req, res, next) => {
-
     const { sessionID, studentID, latitude, longitude, timestamp } = req.body;
     console.log("Received data:", { sessionID, studentID, latitude, longitude, timestamp });
 
@@ -83,8 +82,9 @@ const markAttendance1 = async (req, res, next) => {
 
         // Calculate distance between user and configured location
         const distance = haversineDistance(classConfig.latitude, classConfig.longitude, latitude, longitude);
-
+        
         console.log(`Calculated distance: ${distance} meters`);
+        console.log(classConfig.latitude, classConfig.longitude, latitude, longitude);
 
         // Determine attendance status
         const attendanceStatus = distance <= 20 ? "Present" : "Absent";
@@ -110,6 +110,7 @@ const markAttendance1 = async (req, res, next) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
 
 
 module.exports = { getSessionsByStudentID, markAttendance1 };
