@@ -15,7 +15,8 @@ const attendanceSessionSchema = new mongoose.Schema({
     },
     subjectCode: { type: String, required: true },
     createdBy: { type: String, required: true }, // ProfessorID
-    batchID: { type: String, required: true, ref: "Batch" }, // Reference to Batch
+    batchID: { type: String, required: true, ref: "Batch" }, 
+    classConfigId: { type: String, required: true, ref: "ClassConfiguration" }, 
     sessionCreatedDateTime: { type: Date, default: Date.now }, // Session creation time
     students: [{
         studentID: { type: String, required: true, ref: "Student" }, // Reference to Student

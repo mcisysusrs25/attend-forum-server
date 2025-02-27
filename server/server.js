@@ -87,4 +87,12 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log("\x1b[36m%s\x1b[0m", "====================================");
+  console.log("\x1b[32m%s\x1b[0m", " 🚀  Server is up and running!  🚀");
+  console.log("\x1b[36m%s\x1b[0m", "====================================");
+  console.log(`🔥 Listening on: \x1b[33mhttp://localhost:${PORT}\x1b[0m`);
+  console.log(`📅 Started at: ${new Date().toLocaleString()}`);
+  console.log(`📡 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log("\x1b[36m%s\x1b[0m", "====================================\n");
+});

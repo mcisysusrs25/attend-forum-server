@@ -3,12 +3,15 @@ const Subject = require("../models/Subject");
 const Professor = require("../models/Professor");
 const Student = require("../models/Student");
 const Batch = require("../models/Batch");
+const ClassConfiguration = require("../models/classConfiguration");
 
 
 
 const createAttendanceSession = async (req, res, next) => {
     try {
-        const { sessionTitle, sessionDescription, subjectCode, createdBy, sessionValidFrom, sessionValidTo, batchID } = req.body;
+        const { sessionTitle, sessionDescription, subjectCode, createdBy, sessionValidFrom, sessionValidTo, batchID, classConfigId } = req.body;
+
+        console.log("got this from the client" + classConfigId);
 
         // Validate time range
         if (new Date(sessionValidFrom) >= new Date(sessionValidTo)) {
@@ -33,6 +36,12 @@ const createAttendanceSession = async (req, res, next) => {
             return res.status(400).json({ message: "Invalid batch ID" });
         }
 
+        // Validate batch exists
+        const config = await ClassConfiguration.findOne({ classConfigId });
+        if (!config) {
+            return res.status(400).json({ message: "Invalid Class Config ID" });
+        }
+
         // Fetch students using studentID
         const students = await Student.find({ studentID: { $in: batch.students } });
         if (students.length === 0) {
@@ -54,6 +63,7 @@ const createAttendanceSession = async (req, res, next) => {
             sessionValidFrom,
             sessionValidTo,
             batchID,
+            classConfigId,
             students: sessionStudents
         });
 
@@ -68,7 +78,7 @@ const createAttendanceSession = async (req, res, next) => {
 const updateAttendanceSession = async (req, res, next) => {
     try {
         const { sessionID } = req.params; // Extract sessionID from URL params
-        const { sessionTitle, sessionDescription, sessionValidFrom, sessionValidTo, subjectCode, batchID } = req.body;
+        const { sessionTitle, sessionDescription, sessionValidFrom, sessionValidTo, subjectCode, batchID, classConfigId } = req.body;
 
         // Validate time range
         if (new Date(sessionValidFrom) >= new Date(sessionValidTo)) {
@@ -85,6 +95,11 @@ const updateAttendanceSession = async (req, res, next) => {
         const existingSession = await AttendanceSession.findOne({ sessionID });
         if (!existingSession) {
             return res.status(404).json({ message: "Session not found" });
+        }
+
+        const existingConfigID = await ClassConfiguration.findOne({classConfigId});
+        if (!existingConfigID) {
+            return res.status(404).json({ message: "Class not found" });
         }
 
         // Check if batchID is being updated
@@ -118,6 +133,7 @@ const updateAttendanceSession = async (req, res, next) => {
         existingSession.sessionValidFrom = sessionValidFrom || existingSession.sessionValidFrom;
         existingSession.sessionValidTo = sessionValidTo || existingSession.sessionValidTo;
         existingSession.subjectCode = subjectCode || existingSession.subjectCode;
+        existingSession.classConfigId = classConfigId || existingSession.classConfigId;
 
         // Save the updated session
         await existingSession.save();
@@ -203,6 +219,7 @@ const addAttendanceEntry = async (req, res, next) => {
       next(error);
     }
   };
+
 
 const getSessionAttendance = async (req, res, next) => {
     try {
