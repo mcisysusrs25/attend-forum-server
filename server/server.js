@@ -23,7 +23,7 @@ const allowedOrigins = [
   'http://localhost:5500',
   'http://127.0.0.1:5500', // Add this to explicitly allow requests from your frontend
   'http://localhost:3000',
-  'https://mcisysusrs25.github.io/',
+  'https://mcisysusrs25.github.io',
   'https://attend-forum-server-dev-1-0.onrender.com',
   'https://attend-forum-ui-react-next.vercel.app'
 ];
