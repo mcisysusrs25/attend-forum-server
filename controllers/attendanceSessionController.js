@@ -147,7 +147,6 @@ const updateAttendanceSession = async (req, res, next) => {
 
 const addAttendanceEntry = async (req, res, next) => {
     try {
-
       const { sessionID, students } = req.body;
       
       // Input validation
